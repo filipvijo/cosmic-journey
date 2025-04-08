@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { fal } from '@fal-ai/client';
+// import { fal } from '@fal-ai/client'; // Commented out for testing
 
 // --- Interfaces ---
 interface SpeciesInfo {
@@ -85,14 +85,18 @@ export default async function handler(
     });
 
     console.log(`Serverless: Successfully got ${speciesList.length} species descriptions from OpenAI.`);
+    console.log("Serverless: Fal.ai image generation disabled for testing."); // Add log
+
+    // Return descriptions only
+    return response.status(200).json({ species: speciesList, message: "Image generation disabled" });
 
   } catch (error: any) {
     console.error(`Serverless: Error getting species descriptions from OpenAI for ${planet}:`, error);
     return response.status(500).json({ error: `Failed to get species descriptions: ${error.message}` });
   }
 
-  // --- 2. Call Fal.ai for Images (Parallel) ---
-  console.log(`Serverless: Requesting 3 images from Fal.ai for ${planet} species...`);
+  // --- 2. Call Fal.ai for Images (Disabled) ---
+  /*
   try {
     fal.config({ credentials: falApiKey });
 
@@ -134,4 +138,5 @@ export default async function handler(
         return response.status(500).json({ error: `Internal Server Error generating species images: ${error.message}` });
     }
   }
+  */
 }

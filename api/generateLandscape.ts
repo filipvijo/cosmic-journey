@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { fal } from '@fal-ai/client';
+// import { fal } from '@fal-ai/client'; // Commented out for testing
 
 // Input type for fal.subscribe (only valid props based on docs)
 interface FalSubscribeInput {
@@ -33,7 +33,7 @@ export default async function handler(
   // const negative_prompt = "text, labels, watermarks, ui elements, people, humans, astronauts, spacecraft, blurry, low quality, drawing, illustration, sketch, schematic, diagram";
 
   if (["mercury", "venus", "earth", "mars"].includes(planetNameLower)) {
-      // Rocky Planets
+      // Rocky Planets                                                          
       prompt = `A highly detailed, photo-realistic landscape view from the surface of the planet ${planet}. Based on scientific data (${planet === 'Mars' ? 'reddish rocks and soil, thin hazy atmosphere' : 'varied rocky terrain'}). Daytime, conditions appropriate for the planet. Vast perspective, wide angle view.`;
   } else if (["jupiter", "saturn"].includes(planetNameLower)) {
       // Gas Giants
@@ -58,51 +58,50 @@ export default async function handler(
   // --- End Conditional Prompt ---
 
 
-  // Manually configure the fal client
-  try {
-      fal.config({ credentials: apiKey });
-      // console.log("Serverless: Manually configured fal client credentials."); // Optional log
-  } catch(configError) {
-      console.error("Serverless: Error configuring fal client:", configError);
-      return response.status(500).json({ error: 'Failed to configure AI client.' });
-  }
+  // Comment out the fal.config(...) block
+  // try {
+  //     fal.config({ credentials: apiKey });
+  //     console.log("Serverless: Manually configured fal client credentials.");
+  // } catch(configError) {
+  //     console.error("Serverless: Error configuring fal client:", configError);
+  //     return response.status(500).json({ error: 'Failed to configure AI client.' });
+  // }
 
+  console.log(`Serverless: Fal.ai call disabled for testing.`);
 
-  console.log(`Serverless: Calling Fal.ai client subscribe for ${planet}`); // Log *before* the call
+  // Comment out the entire try...catch block containing fal.subscribe(...)
+  // try {
+  //     const falInput: FalSubscribeInput = {
+  //         prompt: prompt,
+  //         image_size: "landscape_16_9",
+  //     };
 
-  try {
-    // Input object - use the conditionally defined prompt
-    // Use valid parameters for fal-ai/flux/dev based on docs
-    const falInput: FalSubscribeInput = {
-        prompt: prompt,
-        image_size: "landscape_16_9", // Example using enum value, or { width:..., height:... }
-        // Add other params like num_inference_steps if desired
-    };
+  //     const result: any = await fal.subscribe("fal-ai/flux/dev", {
+  //         input: falInput,
+  //         logs: true,
+  //         onQueueUpdate: (update) => {
+  //             if (update.status === "IN_PROGRESS" && update.logs) {
+  //                 update.logs.map((log) => log.message).forEach(msg => console.log(`Fal Progress (${planet}):`, msg));
+  //             }
+  //         },
+  //     });
 
-    const result: any = await fal.subscribe("fal-ai/flux/dev", { // Ensure model ID is correct
-      input: falInput,
-      logs: true, // Keep logs for debugging
-      onQueueUpdate: (update) => {
-        if (update.status === "IN_PROGRESS" && update.logs) {
-            update.logs.map((log) => log.message).forEach(msg => console.log(`Fal Progress (${planet}):`, msg));
-        }
-      },
-    });
+  //     console.log(`Serverless: Fal.ai result for ${planet}:`, JSON.stringify(result, null, 2));
+  //     const imageUrl = result?.data?.images?.[0]?.url;
 
-    console.log(`Serverless: Fal.ai result for ${planet}:`, JSON.stringify(result, null, 2));
-    // Correct extraction based on previous log
-    const imageUrl = result?.data?.images?.[0]?.url;
+  //     if (!imageUrl) {
+  //         console.error('Serverless: Fal.ai result did not contain image URL at data.images[0].url');
+  //         return response.status(500).json({ error: 'AI image generation succeeded but no URL found in response.', data: result });
+  //     }
 
-    if (!imageUrl) {
-        console.error('Serverless: Fal.ai result did not contain image URL at data.images[0].url');
-        return response.status(500).json({ error: 'AI image generation succeeded but no URL found in response.', data: result });
-    }
+  //     console.log(`Serverless: Extracted image URL for ${planet}: ${imageUrl}`);
+  //     response.status(200).json({ imageUrl: imageUrl });
 
-    console.log(`Serverless: Extracted image URL for ${planet}: ${imageUrl}`);
-    response.status(200).json({ imageUrl: imageUrl });
+  // } catch (error: any) {
+  //     console.error(`Serverless: Error calling Fal.ai client for ${planet}:`, error);
+  //     response.status(500).json({ error: `Internal Server Error generating image: ${error.message}` });
+  // }
 
-  } catch (error: any) {
-    console.error(`Serverless: Error calling Fal.ai client for ${planet}:`, error);
-    response.status(500).json({ error: `Internal Server Error generating image: ${error.message}` });
-  }
+  // Add placeholder response
+  return response.status(501).json({ message: 'Fal.ai generation temporarily disabled for testing' });
 }
