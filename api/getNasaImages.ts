@@ -1,14 +1,11 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
+const { VercelRequest, VercelResponse } = require('@vercel/node');
 
 interface NasaImageItem {
     url: string;
     title: string;
 }
 
-export default async function handler(
-  request: VercelRequest,
-  response: VercelResponse,
-) {
+module.exports = async (request, response) => {
   const { planet } = request.query;
   const apiKey = process.env.NASA_API_KEY; // Get NASA key
 
@@ -81,4 +78,4 @@ export default async function handler(
     console.error(`Serverless: Error fetching NASA images for ${planet}:`, error);
     response.status(500).json({ error: `Internal Server Error fetching NASA images: ${error.message}` });
   }
-}
+};

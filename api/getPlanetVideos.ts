@@ -1,4 +1,4 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
+const { VercelRequest, VercelResponse } = require('@vercel/node');
 
 interface YouTubeVideoItem {
     videoId: string;
@@ -6,10 +6,7 @@ interface YouTubeVideoItem {
     thumbnailUrl: string;
 }
 
-export default async function handler(
-  request: VercelRequest,
-  response: VercelResponse,
-) {
+module.exports = async (request, response) => {
   const { planet } = request.query;
   const apiKey = process.env.YOUTUBE_API_KEY;
 
@@ -76,4 +73,4 @@ export default async function handler(
     console.error(`Serverless: Error fetching YouTube videos for ${planet}:`, error);
     response.status(500).json({ error: `Internal Server Error fetching YouTube videos: ${error.message}` });
   }
-}
+};

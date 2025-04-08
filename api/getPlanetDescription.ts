@@ -1,4 +1,4 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
+const { VercelRequest, VercelResponse } = require('@vercel/node');
 
 // Log AFTER attempting manual load
 console.log("--- All Environment Variables (After Manual dotenv Load) ---", process.env);
@@ -15,16 +15,11 @@ interface OpenAIChatResponse {
   error?: { message: string; type: string }; // Include error field potentially
 }
 
-export default async function handler(
-  request: VercelRequest,
-  response: VercelResponse,
-) {
-  // Add specific log here too
-  console.log("Value of OPENAI_API_KEY inside handler:", process.env.OPENAI_API_KEY);
-
+module.exports = async (request, response) => {
   const { planet } = request.query;
-  // This line should now hopefully find the key
   const apiKey = process.env.OPENAI_API_KEY;
+
+  console.log("Value of OPENAI_API_KEY inside handler:", apiKey);
 
   if (!planet || typeof planet !== 'string') {
     return response.status(400).json({ error: 'Planet query parameter is required.' });
@@ -78,4 +73,4 @@ export default async function handler(
     console.error(`Serverless: Error fetching OpenAI description for ${planet}:`, error);
     response.status(500).json({ error: 'Internal Server Error fetching description' });
   }
-}
+};

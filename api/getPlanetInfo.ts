@@ -1,10 +1,9 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
+const { VercelRequest, VercelResponse } = require('@vercel/node');
 
-export default async function handler(
-  request: VercelRequest,
-  response: VercelResponse,
-) {
+module.exports = async (request, response) => {
   const { planet } = request.query;
+
+  console.log(`Fetching planet info for: ${planet}`);
 
   if (!planet || typeof planet !== 'string') {
     return response.status(400).json({ error: 'Planet query parameter is required.' });
@@ -43,4 +42,4 @@ export default async function handler(
     console.error(`Serverless: Error in function for ${planet}:`, error);
     response.status(500).json({ error: 'Internal Server Error' });
   }
-}
+};

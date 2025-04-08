@@ -1,5 +1,5 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
-// import { fal } from '@fal-ai/client'; // Commented out for testing
+const { VercelRequest, VercelResponse } = require('@vercel/node');
+// const { fal } = require('@fal-ai/client'); // Commented out for testing
 
 // Input type for fal.subscribe (only valid props based on docs)
 interface FalSubscribeInput {
@@ -8,10 +8,7 @@ interface FalSubscribeInput {
     // Add other valid params from docs if needed
 }
 
-export default async function handler(
-  request: VercelRequest,
-  response: VercelResponse,
-) {
+module.exports = async (request, response) => {
   const { planet } = request.query;
   const apiKey = process.env.FAL_KEY; // Use FAL_KEY
 
@@ -104,4 +101,4 @@ export default async function handler(
 
   // Add placeholder response
   return response.status(501).json({ message: 'Fal.ai generation temporarily disabled for testing' });
-}
+};

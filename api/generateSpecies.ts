@@ -1,5 +1,5 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
-// import { fal } from '@fal-ai/client'; // Commented out for testing
+const { VercelRequest, VercelResponse } = require('@vercel/node');
+// const { fal } = require('@fal-ai/client'); // Commented out for testing
 
 // --- Interfaces ---
 interface SpeciesInfo {
@@ -23,10 +23,7 @@ interface FalSubscribeInput {
 }
 // --- ---
 
-export default async function handler(
-  request: VercelRequest,
-  response: VercelResponse,
-) {
+module.exports = async (request, response) => {
   const { planet } = request.query;
   const openAIApiKey = process.env.OPENAI_API_KEY;
   const falApiKey = process.env.FAL_KEY;
@@ -139,4 +136,4 @@ export default async function handler(
     }
   }
   */
-}
+};
