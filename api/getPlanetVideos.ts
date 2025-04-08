@@ -1,12 +1,10 @@
-const { VercelRequest, VercelResponse } = require('@vercel/node');
-
 interface YouTubeVideoItem {
     videoId: string;
     title: string;
     thumbnailUrl: string;
 }
 
-module.exports = async (request, response) => {
+module.exports = async (request: any, response: any) => { // Use any for request and response
   const { planet } = request.query;
   const apiKey = process.env.YOUTUBE_API_KEY;
 

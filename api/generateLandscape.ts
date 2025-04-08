@@ -1,4 +1,4 @@
-const { VercelRequest, VercelResponse } = require('@vercel/node');
+// const { VercelRequest, VercelResponse } = require('@vercel/node');
 // const { fal } = require('@fal-ai/client'); // Commented out for testing
 
 // Input type for fal.subscribe (only valid props based on docs)
@@ -8,7 +8,7 @@ interface FalSubscribeInput {
     // Add other valid params from docs if needed
 }
 
-module.exports = async (request, response) => {
+module.exports = async (request: any, response: any) => { // Use any for request and response
   const { planet } = request.query;
   const apiKey = process.env.FAL_KEY; // Use FAL_KEY
 

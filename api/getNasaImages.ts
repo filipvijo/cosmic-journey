@@ -1,11 +1,9 @@
-const { VercelRequest, VercelResponse } = require('@vercel/node');
-
 interface NasaImageItem {
     url: string;
     title: string;
 }
 
-module.exports = async (request, response) => {
+module.exports = async (request: any, response: any) => { // Use any for request and response
   const { planet } = request.query;
   const apiKey = process.env.NASA_API_KEY; // Get NASA key
 

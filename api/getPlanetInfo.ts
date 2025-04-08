@@ -1,6 +1,4 @@
-const { VercelRequest, VercelResponse } = require('@vercel/node');
-
-module.exports = async (request, response) => {
+module.exports = async (request: any, response: any) => { // Use any for request and response
   const { planet } = request.query;
 
   console.log(`Fetching planet info for: ${planet}`);

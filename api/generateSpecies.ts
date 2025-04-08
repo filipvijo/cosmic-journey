@@ -1,4 +1,4 @@
-const { VercelRequest, VercelResponse } = require('@vercel/node');
+// const { VercelRequest, VercelResponse } = require('@vercel/node');
 // const { fal } = require('@fal-ai/client'); // Commented out for testing
 
 // --- Interfaces ---
@@ -23,7 +23,7 @@ interface FalSubscribeInput {
 }
 // --- ---
 
-module.exports = async (request, response) => {
+module.exports = async (request: any, response: any) => { // Use any for request and response
   const { planet } = request.query;
   const openAIApiKey = process.env.OPENAI_API_KEY;
   const falApiKey = process.env.FAL_KEY;

@@ -1,5 +1,3 @@
-const { VercelRequest, VercelResponse } = require('@vercel/node');
-
 // Log AFTER attempting manual load
 console.log("--- All Environment Variables (After Manual dotenv Load) ---", process.env);
 
@@ -15,7 +13,7 @@ interface OpenAIChatResponse {
   error?: { message: string; type: string }; // Include error field potentially
 }
 
-module.exports = async (request, response) => {
+module.exports = async (request: any, response: any) => { // Use any for request and response
   const { planet } = request.query;
   const apiKey = process.env.OPENAI_API_KEY;
 
