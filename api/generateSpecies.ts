@@ -1,6 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { fal } from '@fal-ai/client';
-import fetch from 'node-fetch'; // Or built-in fetch
 
 // --- Interfaces ---
 interface SpeciesInfo {

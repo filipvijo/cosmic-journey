@@ -1,5 +1,4 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import fetch from 'node-fetch';
 
 // Log AFTER attempting manual load
 console.log("--- All Environment Variables (After Manual dotenv Load) ---", process.env);
