@@ -1,8 +1,8 @@
 import { useState } from 'react'; // Remove React from this line
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Stars } from '@react-three/drei'; // Add Stars
-import { SolarSystemScene } from './components/SolarSystemScene';
-import { PlanetDetailView } from './components/PlanetDetailView';
+import { SolarSystemScene } from './components/SolarSystemScene.js';
+import { PlanetDetailView } from './components/PlanetDetailView.js';
 import './App.css';
 
 function App() {

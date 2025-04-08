@@ -1,9 +1,9 @@
 import { useRef } from 'react'; // Remove useState if it's still there
 import * as THREE from 'three'; // Keep for type hints
 import { useFrame } from '@react-three/fiber';
-import { Model as EarthModel } from './EarthModel';
-import { Model as SunModel } from './SunModel';
-import { Model as MarsModel } from './MarsModel';
+import { Model as EarthModel } from './EarthModel.js';
+import { Model as SunModel } from './SunModel.js';
+import { Model as MarsModel } from './MarsModel.js';
 
 // Update props interface
 interface SolarSystemSceneProps {

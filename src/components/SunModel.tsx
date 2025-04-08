@@ -5,9 +5,9 @@ Command: npx gltfjsx@6.5.3 public/models/sun.glb --output src/components/SunMode
 
 import * as THREE from 'three'
 import { useGLTF } from '@react-three/drei'
-import { GLTF } from 'three-stdlib'
 
-type GLTFResult = GLTF & {
+
+type GLTFResult = {
   nodes: {
     sun1: THREE.Mesh
   }

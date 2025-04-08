@@ -5,9 +5,9 @@ Command: npx gltfjsx@6.5.3 public/models/earth.glb --output src/components/Earth
 
 import * as THREE from 'three'
 import { useGLTF } from '@react-three/drei'
-import { GLTF } from 'three-stdlib'
 
-type GLTFResult = GLTF & {
+
+type GLTFResult = {
   nodes: {
     Earth_Diffuse_6K: THREE.Mesh
     Earth_Diffuse_6K001: THREE.Mesh

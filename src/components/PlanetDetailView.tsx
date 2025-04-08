@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 // --- Import a spinner ---
-import ClipLoader from "react-spinners/ClipLoader";
+import { ClipLoader } from "react-spinners";
 // ---
 
 interface PlanetDetailViewProps {
