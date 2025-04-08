@@ -1,4 +1,4 @@
-import React, { useState } from 'react'; // Remove useRef
+import { useState } from 'react'; // Remove React from this line
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Stars } from '@react-three/drei'; // Add Stars
 import { SolarSystemScene } from './components/SolarSystemScene';

@@ -1,4 +1,4 @@
-import React, { useRef } from 'react'; // Remove useState if it's still there
+import { useRef } from 'react'; // Remove useState if it's still there
 import * as THREE from 'three'; // Keep for type hints
 import { useFrame } from '@react-three/fiber';
 import { Model as EarthModel } from './EarthModel';

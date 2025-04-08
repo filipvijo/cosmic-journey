@@ -4,7 +4,6 @@ Command: npx gltfjsx@6.5.3 public/models/mars.glb --output src/components/MarsMo
 */
 
 import * as THREE from 'three'
-import React from 'react'
 import { useGLTF } from '@react-three/drei'
 import { GLTF } from 'three-stdlib'
 
@@ -19,11 +18,10 @@ type GLTFResult = GLTF & {
     ['cloud mars']: THREE.MeshStandardMaterial
     atmosfera: THREE.MeshStandardMaterial
   }
-  animations: GLTFAction[]
 }
 
-export function Model(props: JSX.IntrinsicElements['group']) {
-  const { nodes, materials } = useGLTF('/models/mars.glb') as GLTFResult
+export function Model(props: React.ComponentProps<'group'>) { // Use React.ComponentProps<'group'>
+  const { nodes, materials } = useGLTF('/models/mars.glb') as unknown as GLTFResult
   return (
     <group {...props} dispose={null}>
       <mesh name="mars_surface" castShadow receiveShadow geometry={nodes.mars_surface.geometry} material={materials.planet} scale={4} />

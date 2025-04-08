@@ -4,7 +4,6 @@ Command: npx gltfjsx@6.5.3 public/models/sun.glb --output src/components/SunMode
 */
 
 import * as THREE from 'three'
-import React from 'react'
 import { useGLTF } from '@react-three/drei'
 import { GLTF } from 'three-stdlib'
 
@@ -15,11 +14,10 @@ type GLTFResult = GLTF & {
   materials: {
     sun: THREE.MeshStandardMaterial
   }
-  animations: GLTFAction[]
 }
 
-export function Model(props: JSX.IntrinsicElements['group']) {
-  const { nodes, materials } = useGLTF('/models/sun.glb') as GLTFResult
+export function Model(props: React.ComponentProps<'group'>) { // Use React.ComponentProps<'group'>
+  const { nodes, materials } = useGLTF('/models/sun.glb') as unknown as GLTFResult
   return (
     <group {...props} dispose={null}>
       <group name="Solar_system" scale={37.466}>

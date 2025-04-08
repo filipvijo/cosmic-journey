@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 // --- Import a spinner ---
 import ClipLoader from "react-spinners/ClipLoader";
 // ---
@@ -326,6 +326,34 @@ export function PlanetDetailView({ selectedPlanet, onBack }: PlanetDetailViewPro
                                     <div className="image-placeholder">Image failed</div>
                                 )}
                                 <p>{species.description}</p>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </section>
+
+            {/* Related Videos Section */}
+            <section className="detail-section videos-section">
+                <h3>Related Videos</h3>
+                {isVideosLoading && (
+                    <div style={{ textAlign: 'center', padding: '20px' }}>
+                        <ClipLoader color="#ffffff" loading={isVideosLoading} size={35} aria-label="Loading Videos" />
+                    </div>
+                )}
+                {videosError && <p className="error-message">{videosError}</p>}
+                {!isVideosLoading && youtubeVideos.length === 0 && !videosError && <p>No relevant videos found.</p>}
+                {youtubeVideos.length > 0 && (
+                    <div style={{ display: 'flex', overflowX: 'auto', paddingBottom: '10px', gap: '10px' }}>
+                        {youtubeVideos.map((video) => (
+                            <div key={video.videoId} style={{ flex: '0 0 auto', textAlign: 'center' }}>
+                                <a href={`https://www.youtube.com/watch?v=${video.videoId}`} target="_blank" rel="noopener noreferrer">
+                                    <img
+                                        src={video.thumbnailUrl}
+                                        alt={video.title}
+                                        title={video.title}
+                                        style={{ width: '160px', height: 'auto', border: '1px solid grey' }}
+                                    />
+                                </a>
                             </div>
                         ))}
                     </div>
