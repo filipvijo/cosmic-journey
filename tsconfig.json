@@ -8,6 +8,7 @@
     "skipLibCheck": true,
     "jsx": "react-jsx",
     "module": "CommonJS",
-    "moduleResolution": "Node"
+    "moduleResolution": "Node",
+    "isolatedModules": false
   }
 }
