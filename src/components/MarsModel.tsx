@@ -20,10 +20,10 @@ type GLTFResult = {
   }
 }
 
-export function Model(props: React.ComponentProps<'group'>) { // Use React.ComponentProps<'group'>
+export function Model(props: React.ComponentProps<'group'>) {
   const { nodes, materials } = useGLTF('/models/mars.glb') as unknown as GLTFResult
   return (
-    <group {...props} dispose={null}>
+    <group dispose={null}>
       <mesh name="mars_surface" castShadow receiveShadow geometry={nodes.mars_surface.geometry} material={materials.planet} scale={4} />
       <mesh name="mars_cloud" castShadow receiveShadow geometry={nodes.mars_cloud.geometry} material={materials['cloud mars']} scale={4.016} />
       <mesh name="mars_atmosfera" castShadow receiveShadow geometry={nodes.mars_atmosfera.geometry} material={materials.atmosfera} scale={4.056} />

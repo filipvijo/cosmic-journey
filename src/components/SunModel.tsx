@@ -19,7 +19,7 @@ type GLTFResult = {
 export function Model(props: React.ComponentProps<'group'>) { // Use React.ComponentProps<'group'>
   const { nodes, materials } = useGLTF('/models/sun.glb') as unknown as GLTFResult
   return (
-    <group {...props} dispose={null}>
+    <group dispose={null}>
       <group name="Solar_system" scale={37.466}>
         <mesh name="sun1" castShadow receiveShadow geometry={nodes.sun1.geometry} material={materials.sun} scale={0.267} />
       </group>

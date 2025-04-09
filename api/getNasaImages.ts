@@ -1,11 +1,21 @@
+// --- Helper function for shuffling ---
+function shuffleArray(array: any[]) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]]; // Swap elements
+  }
+  return array;
+}
+// --- ---
+
 interface NasaImageItem {
-    url: string;
-    title: string;
+  url: string;
+  title: string;
 }
 
-module.exports = async (request: any, response: any) => { // Use any for request and response
+module.exports = async (request: any, response: any) => { // Using any due to previous issues
   const { planet } = request.query;
-  const apiKey = process.env.NASA_API_KEY; // Get NASA key
+  const apiKey = process.env.NASA_API_KEY;
 
   console.log(`NASA Images Fn: Checking NASA_API_KEY: ${apiKey ? 'Found' : 'Not Found!'}`);
 
@@ -17,27 +27,18 @@ module.exports = async (request: any, response: any) => { // Use any for request
     return response.status(500).json({ error: 'NASA API key configuration error.' });
   }
 
-  // Construct the NASA Image Library search URL
   const searchParams = new URLSearchParams({
-      // REMOVE the 'q' parameter:
-      // q: `${planet} planet surface landscape rover orbiter`,
-
-      // ADD a 'title' parameter instead:
-      title: `${planet} surface`, // Search for "Mars surface" etc. in the image TITLE
-
-      media_type: 'image', // Still want only images
+    title: `${planet} surface`, // Keep specific title search
+    media_type: 'image',
   });
   const NASA_SEARCH_URL = `https://images-api.nasa.gov/search?${searchParams.toString()}`;
+  const MAX_IMAGES_TO_FETCH = 30; // Fetch more initially
+  const MAX_IMAGES_TO_RETURN = 5; // How many to show
 
   console.log(`Serverless: Searching NASA Images for title "${planet} surface"`);
 
   try {
-    const nasaResponse = await fetch(NASA_SEARCH_URL, {
-       headers: {
-         // Some NASA APIs might prefer key in header, double check docs if query param doesn't work
-         // 'X-Api-Key': apiKey
-       }
-    });
+    const nasaResponse = await fetch(NASA_SEARCH_URL);
 
     if (!nasaResponse.ok) {
       const errorBody = await nasaResponse.text();
@@ -46,31 +47,34 @@ module.exports = async (request: any, response: any) => { // Use any for request
     }
 
     const data = await nasaResponse.json();
-    const items = data?.collection?.items;
+    let items = data?.collection?.items;
 
     if (!items || items.length === 0) {
       console.log(`Serverless: No NASA image results found for ${planet}.`);
       return response.status(404).json({ error: `No NASA images found for ${planet}` });
     }
 
-    // Extract relevant data (URL and Title) for the first few items (e.g., max 5)
+    // --- Shuffle and Select ---
+    console.log(`Serverless: Found ${items.length} total NASA items for ${planet}. Shuffling and selecting ${MAX_IMAGES_TO_RETURN}.`);
+    items = shuffleArray(items); // Shuffle the full list
+    // --- ---
+
+    // Extract data from the top N items of the *shuffled* list
     const images: NasaImageItem[] = items
-      .slice(0, 5) // Limit to 5 images
+      .slice(0, MAX_IMAGES_TO_FETCH) // Take a larger slice first
       .map((item: any) => {
-          // Ensure item structure is as expected before accessing properties
-          const imageUrl = item?.links?.[0]?.href;
-          const title = item?.data?.[0]?.title;
-          // Only return if we have both URL and title
-          if (imageUrl && title) {
-              return { url: imageUrl, title: title };
-          }
-          return null; // Exclude item if data is missing
+        const imageUrl = item?.links?.[0]?.href;
+        const title = item?.data?.[0]?.title;
+        if (imageUrl && title) {
+          return { url: imageUrl, title: title };
+        }
+        return null; // Exclude item if data is missing
       })
-      .filter((image: NasaImageItem | null): image is NasaImageItem => image !== null); // Filter out null entries
+      .filter((image: NasaImageItem | null): image is NasaImageItem => image !== null)
+      .slice(0, MAX_IMAGES_TO_RETURN); // Then take the final number needed
 
-
-    console.log(`Serverless: Found ${images.length} NASA images for ${planet}.`);
-    response.status(200).json({ images }); // Return the array of images
+    console.log(`Serverless: Returning ${images.length} NASA images for ${planet}.`);
+    response.status(200).json({ images });
 
   } catch (error: any) {
     console.error(`Serverless: Error fetching NASA images for ${planet}:`, error);

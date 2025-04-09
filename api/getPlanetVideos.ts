@@ -1,10 +1,20 @@
+// --- Helper function for shuffling ---
+function shuffleArray(array: any[]) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]]; // Swap elements
+  }
+  return array;
+}
+// --- ---
+
 interface YouTubeVideoItem {
-    videoId: string;
-    title: string;
-    thumbnailUrl: string;
+  videoId: string;
+  title: string;
+  thumbnailUrl: string;
 }
 
-module.exports = async (request: any, response: any) => { // Use any for request and response
+module.exports = async (request: any, response: any) => { // Using any
   const { planet } = request.query;
   const apiKey = process.env.YOUTUBE_API_KEY;
 
@@ -18,15 +28,17 @@ module.exports = async (request: any, response: any) => { // Use any for request
     return response.status(500).json({ error: 'YouTube API key configuration error.' });
   }
 
-  // Construct Youtube URL
-  const query = `${planet} planet documentary space`; // Search query
-  const maxResults = 5; // Number of videos to fetch
+  // Refine query slightly
+  const query = `${planet} planet documentary science NASA JPL`; // Added NASA, JPL
+  const MAX_RESULTS_TO_FETCH = 25; // Ask YouTube for more results
+  const MAX_RESULTS_TO_RETURN = 5; // How many to show
+
   const searchParams = new URLSearchParams({
-      part: 'snippet', // Required part parameter
-      q: query,
-      type: 'video', // Search only for videos
-      maxResults: maxResults.toString(),
-      key: apiKey, // API Key
+    part: 'snippet',
+    q: query,
+    type: 'video',
+    maxResults: MAX_RESULTS_TO_FETCH.toString(), // Fetch more
+    key: apiKey,
   });
   const Youtube_URL = `https://www.googleapis.com/youtube/v3/search?${searchParams.toString()}`;
 
@@ -42,30 +54,34 @@ module.exports = async (request: any, response: any) => { // Use any for request
     }
 
     const data = await youtubeResponse.json();
-    const items = data?.items;
+    let items = data?.items;
 
     if (!items || items.length === 0) {
       console.log(`Serverless: No YouTube video results found for ${query}.`);
-      // Return empty array instead of 404 - finding no videos isn't strictly an error
       return response.status(200).json({ videos: [] });
     }
 
-    // Extract relevant data (videoId, title, thumbnail)
+    // --- Shuffle and Select ---
+    console.log(`Serverless: Found ${items.length} total YouTube items for ${query}. Shuffling and selecting ${MAX_RESULTS_TO_RETURN}.`);
+    items = shuffleArray(items); // Shuffle the list
+    // --- ---
+
+    // Extract data from the top N items of the *shuffled* list
     const videos: YouTubeVideoItem[] = items
       .map((item: any) => {
-          const videoId = item?.id?.videoId;
-          const title = item?.snippet?.title;
-          // Get medium or default thumbnail
-          const thumbnailUrl = item?.snippet?.thumbnails?.medium?.url || item?.snippet?.thumbnails?.default?.url;
-          if (videoId && title && thumbnailUrl) {
-              return { videoId, title, thumbnailUrl };
-          }
-          return null;
+        const videoId = item?.id?.videoId;
+        const title = item?.snippet?.title;
+        const thumbnailUrl = item?.snippet?.thumbnails?.medium?.url || item?.snippet?.thumbnails?.default?.url;
+        if (videoId && title && thumbnailUrl) {
+          return { videoId, title, thumbnailUrl };
+        }
+        return null; // Exclude item if data is missing
       })
-      .filter((video: YouTubeVideoItem | null): video is YouTubeVideoItem => video !== null);
+      .filter((video: YouTubeVideoItem | null): video is YouTubeVideoItem => video !== null)
+      .slice(0, MAX_RESULTS_TO_RETURN); // Take the final number needed
 
-    console.log(`Serverless: Found ${videos.length} YouTube videos for ${query}.`);
-    response.status(200).json({ videos }); // Return array of video objects
+    console.log(`Serverless: Returning ${videos.length} YouTube videos for ${query}.`);
+    response.status(200).json({ videos });
 
   } catch (error: any) {
     console.error(`Serverless: Error fetching YouTube videos for ${planet}:`, error);

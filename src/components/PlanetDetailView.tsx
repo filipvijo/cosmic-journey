@@ -285,9 +285,22 @@ export function PlanetDetailView({ selectedPlanet, onBack }: PlanetDetailViewPro
                 {!isNasaImagesLoading && nasaImages.length > 0 && (
                     <div className="nasa-gallery">
                         {nasaImages.map((img, index) => (
-                            <div key={index} className="nasa-gallery-item">
-                                <img src={img.url} alt={img.title} title={img.title} />
-                            </div>
+                            <a
+                                key={index}
+                                href={img.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="nasa-gallery-item"
+                                title={`View image: ${img.title}`}
+                            >
+                                <div>
+                                    <img
+                                        src={img.url}
+                                        alt={img.title || `NASA image of ${selectedPlanet} ${index + 1}`}
+                                        style={{ /* Keep your image styles */ }}
+                                    />
+                                </div>
+                            </a>
                         ))}
                     </div>
                 )}

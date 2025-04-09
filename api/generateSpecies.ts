@@ -1,5 +1,10 @@
-// const { VercelRequest, VercelResponse } = require('@vercel/node');
-// const { fal } = require('@fal-ai/client'); // Commented out for testing
+import dotenv from 'dotenv';
+import path from 'path'; // Make sure path is imported too
+
+const envPath = path.resolve(process.cwd(), '.env.local');
+dotenv.config({ path: envPath });
+
+const { fal } = require('@fal-ai/client'); // Uncommented and using require
 
 // --- Interfaces ---
 interface SpeciesInfo {
@@ -82,45 +87,48 @@ module.exports = async (request: any, response: any) => { // Use any for request
     });
 
     console.log(`Serverless: Successfully got ${speciesList.length} species descriptions from OpenAI.`);
-    console.log("Serverless: Fal.ai image generation disabled for testing."); // Add log
-
-    // Return descriptions only
-    return response.status(200).json({ species: speciesList, message: "Image generation disabled" });
 
   } catch (error: any) {
     console.error(`Serverless: Error getting species descriptions from OpenAI for ${planet}:`, error);
     return response.status(500).json({ error: `Failed to get species descriptions: ${error.message}` });
   }
 
-  // --- 2. Call Fal.ai for Images (Disabled) ---
-  /*
+  // --- 2. Call Fal.ai for Images ---
   try {
     fal.config({ credentials: falApiKey });
+    console.log("Serverless: Manually configured fal client credentials.");
+  } catch (configError) {
+    console.error("Serverless: Error configuring fal client:", configError);
+    return response.status(500).json({ error: 'Failed to configure AI client.' });
+  }
 
+  console.log(`Serverless: Requesting 3 images from Fal.ai for ${planet} species...`);
+
+  try {
     const imagePromises = speciesList.map(species => {
-        const imagePrompt = `Detailed scientific illustration of a hypothetical ${species.category.toLowerCase()} named "${species.name}" from planet ${planet}. Appearance based on this description: "${species.description}". Neutral background.`;
-        const falInput: FalSubscribeInput = { prompt: imagePrompt, image_size: "square" };
+      const imagePrompt = `Detailed scientific illustration of a hypothetical ${species.category.toLowerCase()} named "${species.name}" from planet ${planet}. Appearance based on this description: "${species.description}". Neutral background.`;
+      const falInput: FalSubscribeInput = { prompt: imagePrompt, image_size: "square" };
 
-        console.log(`Submitting Fal.ai for: ${species.name}`);
-        return fal.subscribe("fal-ai/flux/dev", { input: falInput });
+      console.log(`Submitting Fal.ai for: ${species.name}`);
+      return fal.subscribe("fal-ai/flux/dev", { input: falInput });
     });
 
     const imageResults = await Promise.allSettled(imagePromises);
 
     imageResults.forEach((result, index) => {
-        if (result.status === 'fulfilled' && result.value) {
-            const imageUrl = result.value?.data?.images?.[0]?.url;
-            if (imageUrl) {
-                console.log(`Fal.ai success for ${speciesList[index].name}`);
-                speciesList[index].imageUrl = imageUrl;
-            } else {
-                console.error(`Fal.ai image URL missing for ${speciesList[index].name}.`);
-                speciesList[index].imageUrl = null;
-            }
-        } else if (result.status === 'rejected') {
-            console.error(`Fal.ai image failed for ${speciesList[index].name}:`, result.reason);
-            speciesList[index].imageUrl = null;
+      if (result.status === 'fulfilled' && result.value) {
+        const imageUrl = result.value?.data?.images?.[0]?.url;
+        if (imageUrl) {
+          console.log(`Fal.ai success for ${speciesList[index].name}`);
+          speciesList[index].imageUrl = imageUrl;
+        } else {
+          console.error(`Fal.ai image URL missing for ${speciesList[index].name}.`);
+          speciesList[index].imageUrl = null;
         }
+      } else if (result.status === 'rejected') {
+        console.error(`Fal.ai image failed for ${speciesList[index].name}:`, result.reason);
+        speciesList[index].imageUrl = null;
+      }
     });
 
     console.log(`Serverless: Finished Fal.ai image generation attempts.`);
@@ -129,11 +137,10 @@ module.exports = async (request: any, response: any) => { // Use any for request
   } catch (error: any) {
     console.error(`Serverless: Error generating species images with Fal.ai for ${planet}:`, error);
     if (speciesList.length === 3) {
-         speciesList.forEach(s => { if (s.imageUrl === undefined) s.imageUrl = null; });
-         return response.status(200).json({ species: speciesList, image_error: `Failed during image generation: ${error.message}` });
+      speciesList.forEach(s => { if (s.imageUrl === undefined) s.imageUrl = null; });
+      return response.status(200).json({ species: speciesList, image_error: `Failed during image generation: ${error.message}` });
     } else {
-        return response.status(500).json({ error: `Internal Server Error generating species images: ${error.message}` });
+      return response.status(500).json({ error: `Internal Server Error generating species images: ${error.message}` });
     }
   }
-  */
 };

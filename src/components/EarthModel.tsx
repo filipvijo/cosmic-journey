@@ -21,7 +21,7 @@ type GLTFResult = {
 export function Model(props: React.ComponentProps<'group'>) { // Use React.ComponentProps<'group'>
   const { nodes, materials } = useGLTF('/models/earth.glb') as unknown as GLTFResult
   return (
-    <group {...props} dispose={null}>
+    <group dispose={null}>
       <mesh name="Earth_Diffuse_6K" castShadow receiveShadow geometry={nodes.Earth_Diffuse_6K.geometry} material={materials.Earth_Diffuse_6K} rotation={[Math.PI / 2, 0, -Math.PI / 2]} scale={13.301} />
       <mesh name="Earth_Diffuse_6K001" castShadow receiveShadow geometry={nodes.Earth_Diffuse_6K001.geometry} material={materials['Material.001']} rotation={[Math.PI / 2, 0, -1.414]} scale={13.464} />
     </group>
