@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-// --- Import a spinner ---
 import { ClipLoader } from "react-spinners";
-// ---
+import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css'; // Import default CSS
 
 interface PlanetDetailViewProps {
   selectedPlanet: string;
@@ -51,6 +51,12 @@ export function PlanetDetailView({ selectedPlanet, onBack }: PlanetDetailViewPro
   const [speciesData, setSpeciesData] = useState<any[]>([]); // Use a proper type/interface later
   const [isSpeciesLoading, setIsSpeciesLoading] = useState<boolean>(false);
   const [speciesError, setSpeciesError] = useState<string | null>(null);
+  // --- ---
+
+  // --- Add state for Astrology Info ---
+  const [astrologyText, setAstrologyText] = useState<string | null>(null);
+  const [isAstrologyLoading, setIsAstrologyLoading] = useState<boolean>(false);
+  const [astrologyError, setAstrologyError] = useState<string | null>(null);
   // --- ---
 
   // useEffect for all fetches
@@ -166,10 +172,38 @@ export function PlanetDetailView({ selectedPlanet, onBack }: PlanetDetailViewPro
     };
     // --- ---
 
+    // --- Fetch Astrology Info ---
+    const fetchAstrologyInfo = async () => {
+      if (!selectedPlanet) return;
+      console.log(`Frontend: Fetching astrology info for ${selectedPlanet}`);
+      setIsAstrologyLoading(true);
+      setAstrologyError(null);
+      setAstrologyText(null);
+  
+      try {
+          const response = await fetch(`/api/getAstrologyInfo?planet=${selectedPlanet}`);
+          if (!response.ok) {
+              let errorMsg = `Astrology Fetch error! Status: ${response.status}`;
+              try { const errorData = await response.json(); errorMsg = errorData.error || errorMsg; } catch (e) {}
+              throw new Error(errorMsg);
+          }
+          const data = await response.json();
+          setAstrologyText(data.astrologyText || 'No astrology info returned.');
+          console.log(`Frontend: Received astrology info for ${selectedPlanet}`);
+      } catch (e: any) {
+          console.error("Frontend: Failed to fetch astrology info:", e);
+          setAstrologyError(`Failed to load astrology info. (${e.message})`);
+      } finally {
+          setIsAstrologyLoading(false);
+      }
+    };
+    // --- End fetchAstrologyInfo ---
+
     fetchPlanetData();
     fetchDescription();
     fetchNasaImages(); // Call the new function
     fetchYouTubeVideos(); // <-- Call the new function
+    fetchAstrologyInfo(); // <-- Call the new function
 
     // Clear previous image state when planet changes
     setLandscapeImageUrl(null);
@@ -259,146 +293,177 @@ export function PlanetDetailView({ selectedPlanet, onBack }: PlanetDetailViewPro
 
   // --- Render Logic ---
   return (
-    <div className="planet-detail-container"> {/* Add a class for styling */}
-        {/* Header */}
-        <div className="detail-header">
-            <h1>{selectedPlanet}</h1>
-            <button onClick={onBack} className="back-button">Back to Solar System</button>
-        </div>
+    // Update SkeletonTheme to use CSS variables
+    <SkeletonTheme baseColor="var(--skeleton-base)" highlightColor="var(--skeleton-highlight)">
+      <div className="planet-detail-container"> {/* Add a class for styling */}
+          {/* Header */}
+          <div className="detail-header">
+              <h1>{selectedPlanet}</h1>
+              <button onClick={onBack} className="back-button">Back to Solar System</button>
+          </div>
 
-        {/* Main Content Grid/Flex Container */}
-        <div className="detail-content">
+          {/* Main Content Grid/Flex Container */}
+          <div className="detail-content">
 
-            {/* Description Section */}
-            <section className="detail-section description-section">
-                <h2>Description</h2>
-                {isDescriptionLoading && <div style={{ textAlign: 'center', padding: '20px' }}><ClipLoader color="#ffffff" loading={isDescriptionLoading} size={35} aria-label="Loading Description" /></div>}
-                {descriptionError && <p className="error-message">{descriptionError}</p>}
-                {description && !isDescriptionLoading && <p><i>{description}</i></p>}
-            </section>
+              {/* Description Section */}
+              <section className="detail-section description-section">
+                  <h2>Description</h2>
+                  {isDescriptionLoading && <Skeleton count={3} style={{ marginBottom: '0.6rem' }} />}
+                  {descriptionError && <p className="error-message">{descriptionError}</p>}
+                  {description && !isDescriptionLoading && <p><i>{description}</i></p>}
+              </section>
 
-            {/* NASA Images Section */}
-            <section className="detail-section nasa-image-section">
-                <h3>Real Images from NASA</h3>
-                {isNasaImagesLoading && <div style={{ textAlign: 'center', padding: '20px' }}><ClipLoader color="#ffffff" loading={isNasaImagesLoading} size={35} aria-label="Loading NASA Images" /></div>}
-                {nasaImagesError && <p className="error-message">{nasaImagesError}</p>}
-                {!isNasaImagesLoading && nasaImages.length > 0 && (
-                    <div className="nasa-gallery">
-                        {nasaImages.map((img, index) => (
-                            <a
-                                key={index}
-                                href={img.url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="nasa-gallery-item"
-                                title={`View image: ${img.title}`}
-                            >
-                                <div>
-                                    <img
-                                        src={img.url}
-                                        alt={img.title || `NASA image of ${selectedPlanet} ${index + 1}`}
-                                        style={{ /* Keep your image styles */ }}
-                                    />
-                                </div>
-                            </a>
-                        ))}
+              {/* NASA Images Section */}
+              <section className="detail-section nasa-image-section">
+                  <h3>Real Images from NASA</h3>
+                  {isNasaImagesLoading && (
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                      {/* Show placeholders */}
+                      {[1, 2, 3, 4].map(i => <Skeleton key={i} height={150} width={220} />)}
                     </div>
-                )}
-                {!isNasaImagesLoading && nasaImages.length === 0 && !nasaImagesError && <p>No relevant NASA images found.</p>}
-            </section>
+                  )}
+                  {nasaImagesError && <p className="error-message">{nasaImagesError}</p>}
+                  {!isNasaImagesLoading && nasaImages.length > 0 && (
+                      <div className="nasa-gallery">
+                          {nasaImages.map((img, index) => (
+                              <a
+                                  key={index}
+                                  href={img.url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="nasa-gallery-item"
+                                  title={`View image: ${img.title}`}
+                              >
+                                  <div>
+                                      <img
+                                          src={img.url}
+                                          alt={img.title || `NASA image of ${selectedPlanet} ${index + 1}`}
+                                          style={{ /* Keep your image styles */ }}
+                                      />
+                                  </div>
+                              </a>
+                          ))}
+                      </div>
+                  )}
+                  {!isNasaImagesLoading && nasaImages.length === 0 && !nasaImagesError && <p>No relevant NASA images found.</p>}
+              </section>
 
-            {/* Hypothetical Landscape Section */}
-            <section className="detail-section landscape-section">
-                <h3>Hypothetical Landscape</h3>
-                <button onClick={handleGenerateLandscapeClick} disabled={isImageLoading} className="generate-button">
-                    {isImageLoading ? 'Generating...' : 'Imagine Landscape?'}
-                </button>
-                {isImageLoading && <div style={{ textAlign: 'center', padding: '20px' }}><ClipLoader color="#ffffff" loading={isImageLoading} size={35} aria-label="Generating Landscape" /></div>}
-                {imageError && <p className="error-message">{imageError}</p>}
-                {landscapeImageUrl && !isImageLoading && (
-                    <img src={landscapeImageUrl} alt={`Hypothetical landscape of ${selectedPlanet}`} className="landscape-image" />
-                )}
-            </section>
+              {/* Hypothetical Landscape Section */}
+              <section className="detail-section landscape-section">
+                  <h3>Hypothetical Landscape</h3>
+                  <button onClick={handleGenerateLandscapeClick} disabled={isImageLoading} className="generate-button">
+                      {isImageLoading ? 'Generating...' : 'Imagine Landscape?'}
+                  </button>
+                  {isImageLoading && <div style={{marginTop: '10px'}}><Skeleton height={250} /></div>}
+                  {imageError && <p className="error-message">{imageError}</p>}
+                  {landscapeImageUrl && !isImageLoading && (
+                      <img src={landscapeImageUrl} alt={`Hypothetical landscape of ${selectedPlanet}`} className="landscape-image" />
+                  )}
+              </section>
 
-            {/* Hypothetical Species Section */}
-            <section className="detail-section species-section">
-                <h3>Hypothetical Species</h3>
-                <button onClick={handleGenerateSpeciesClick} disabled={isSpeciesLoading} className="generate-button">
-                    {isSpeciesLoading ? 'Generating...' : 'Generate Species Concepts'}
-                </button>
-                {isSpeciesLoading && <div style={{ textAlign: 'center', padding: '20px' }}><ClipLoader color="#ffffff" loading={isSpeciesLoading} size={35} aria-label="Generating Species" /></div>}
-                {speciesError && <p className="error-message">{speciesError}</p>}
-                {speciesData.length > 0 && !isSpeciesLoading && (
-                    <div className="species-grid">
-                        {speciesData.map((species, index) => (
-                            <div key={index} className="species-card">
-                                <h4>{species.name} <em>({species.category})</em></h4>
-                                {species.imageUrl ? (
-                                    <img src={species.imageUrl} alt={`Hypothetical ${species.category} ${species.name}`} />
-                                ) : (
-                                    <div className="image-placeholder">Image failed</div>
-                                )}
-                                <p>{species.description}</p>
-                            </div>
-                        ))}
-                    </div>
-                )}
-            </section>
+              {/* Hypothetical Species Section */}
+              <section className="detail-section species-section">
+                  <h3>Hypothetical Species</h3>
+                  <button onClick={handleGenerateSpeciesClick} disabled={isSpeciesLoading} className="generate-button">
+                      {isSpeciesLoading ? 'Generating...' : 'Generate Species Concepts'}
+                  </button>
+                  {isSpeciesLoading && (
+                      <div className="species-grid" style={{marginTop: '15px'}}>
+                          {[1, 2, 3].map(i => (
+                              <div key={i} className="species-card" style={{ border: 'none', background: 'none' }}> {/* Match card structure */}
+                                  <h4><Skeleton width={`60%`} /></h4>
+                                  <p><em><Skeleton width={`40%`} /></em></p>
+                                  <Skeleton height={150} style={{marginBottom: '10px'}} />
+                                  <p><Skeleton count={2} /></p>
+                              </div>
+                          ))}
+                      </div>
+                  )}
+                  {speciesError && <p className="error-message">{speciesError}</p>}
+                  {speciesData.length > 0 && !isSpeciesLoading && (
+                      <div className="species-grid">
+                          {speciesData.map((species, index) => (
+                              <div key={index} className="species-card">
+                                  <h4>{species.name} <em>({species.category})</em></h4>
+                                  {species.imageUrl ? (
+                                      <img src={species.imageUrl} alt={`Hypothetical ${species.category} ${species.name}`} />
+                                  ) : (
+                                      <div className="image-placeholder">Image failed</div>
+                                  )}
+                                  <p>{species.description}</p>
+                              </div>
+                          ))}
+                      </div>
+                  )}
+              </section>
 
-            {/* Related Videos Section */}
-            <section className="detail-section videos-section">
-                <h3>Related Videos</h3>
-                {isVideosLoading && (
-                    <div style={{ textAlign: 'center', padding: '20px' }}>
-                        <ClipLoader color="#ffffff" loading={isVideosLoading} size={35} aria-label="Loading Videos" />
-                    </div>
-                )}
-                {videosError && <p className="error-message">{videosError}</p>}
-                {!isVideosLoading && youtubeVideos.length === 0 && !videosError && <p>No relevant videos found.</p>}
-                {youtubeVideos.length > 0 && (
+              {/* Related Videos Section */}
+              <section className="detail-section videos-section">
+                  <h3>Related Videos</h3>
+                  {isVideosLoading && (
                     <div style={{ display: 'flex', overflowX: 'auto', paddingBottom: '10px', gap: '10px' }}>
-                        {youtubeVideos.map((video) => (
-                            <div key={video.videoId} style={{ flex: '0 0 auto', textAlign: 'center' }}>
-                                <a href={`https://www.youtube.com/watch?v=${video.videoId}`} target="_blank" rel="noopener noreferrer">
-                                    <img
-                                        src={video.thumbnailUrl}
-                                        alt={video.title}
-                                        title={video.title}
-                                        style={{ width: '160px', height: 'auto', border: '1px solid grey' }}
-                                    />
-                                </a>
-                            </div>
-                        ))}
+                      {[1, 2, 3, 4].map(i => (
+                        <div key={i} style={{ flex: '0 0 auto' }}>
+                          <Skeleton height={90} width={160} />
+                        </div>
+                      ))}
                     </div>
-                )}
-            </section>
+                  )}
+                  {videosError && <p className="error-message">{videosError}</p>}
+                  {youtubeVideos.length > 0 && (
+                      <div style={{ display: 'flex', overflowX: 'auto', paddingBottom: '10px', gap: '10px' }}>
+                          {youtubeVideos.map((video) => (
+                              <div key={video.videoId} style={{ flex: '0 0 auto', textAlign: 'center' }}>
+                                  <a href={`https://www.youtube.com/watch?v=${video.videoId}`} target="_blank" rel="noopener noreferrer">
+                                      <img
+                                          src={video.thumbnailUrl}
+                                          alt={video.title}
+                                          title={video.title}
+                                          style={{ width: '160px', height: 'auto', border: '1px solid grey' }}
+                                      />
+                                  </a>
+                              </div>
+                          ))}
+                      </div>
+                  )}
+              </section>
 
-            {/* Facts Section */}
-            <section className="detail-section facts-section">
-                <h3>Facts & Figures</h3>
-                {isLoading && <div style={{ textAlign: 'center', padding: '20px' }}><ClipLoader color="#ffffff" loading={isLoading} size={35} aria-label="Loading Facts" /></div>}
-                {error && <p className="error-message">{error}</p>}
-                {planetData && !isLoading && (
-                    <div>
-                        <p><strong>Mean Radius:</strong> {planetData.meanRadius?.toLocaleString()} km</p>
-                        <p><strong>Mass (kg):</strong> {planetData.mass ? `${planetData.mass.massValue} x 10^${planetData.mass.massExponent}` : 'N/A'}</p>
-                        <p><strong>Gravity (m/s²):</strong> {planetData.gravity}</p>
-                        <p><strong>Discovered By:</strong> {planetData.discoveredBy || 'N/A'}</p>
-                        <p><strong>Discovery Date:</strong> {planetData.discoveryDate || 'N/A'}</p>
-                        {planetData.moons && planetData.moons.length > 0 && (
-                            <div>
-                                <strong>Moons ({planetData.moons.length}):</strong>
-                                <ul>
-                                    {planetData.moons.slice(0, 10).map(moon => <li key={moon.moon}>{moon.moon}</li>)}
-                                    {planetData.moons.length > 10 && <li>...and more</li>}
-                                </ul>
-                            </div>
-                        )}
-                    </div>
-                )}
-            </section>
+              {/* --- Astrology Section --- */}
+              <section className="detail-section astrology-section">
+                  <h3>Astrological Significance</h3>
+                  {isAstrologyLoading && <Skeleton count={3} />} {/* Use Skeleton */}
+                  {astrologyError && <p className="error-message">{astrologyError}</p>}
+                  {astrologyText && !isAstrologyLoading && <p>{astrologyText}</p>}
+              </section>
+              {/* --- End Astrology Section --- */}
 
-        </div> {/* End detail-content */}
-    </div> // End planet-detail-container
-);
+              {/* Facts Section */}
+              <section className="detail-section facts-section">
+                  <h3>Facts & Figures</h3>
+                  {isLoading && <Skeleton count={5} style={{ marginBottom: '0.6rem' }} />}
+                  {error && <p className="error-message">{error}</p>}
+                  {planetData && !isLoading && (
+                      <div>
+                          <p><strong>Mean Radius:</strong> {planetData.meanRadius?.toLocaleString()} km</p>
+                          <p><strong>Mass (kg):</strong> {planetData.mass ? `${planetData.mass.massValue} x 10^${planetData.mass.massExponent}` : 'N/A'}</p>
+                          <p><strong>Gravity (m/s²):</strong> {planetData.gravity}</p>
+                          <p><strong>Discovered By:</strong> {planetData.discoveredBy || 'N/A'}</p>
+                          <p><strong>Discovery Date:</strong> {planetData.discoveryDate || 'N/A'}</p>
+                          {planetData.moons && planetData.moons.length > 0 && (
+                              <div>
+                                  <strong>Moons ({planetData.moons.length}):</strong>
+                                  <ul>
+                                      {planetData.moons.slice(0, 10).map(moon => <li key={moon.moon}>{moon.moon}</li>)}
+                                      {planetData.moons.length > 10 && <li>...and more</li>}
+                                  </ul>
+                              </div>
+                          )}
+                      </div>
+                  )}
+              </section>
+
+          </div> {/* End detail-content */}
+      </div> {/* End planet-detail-container */}
+    </SkeletonTheme>
+  );
 }

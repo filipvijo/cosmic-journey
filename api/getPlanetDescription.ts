@@ -35,7 +35,6 @@ module.exports = async (request: any, response: any) => { // Use any for request
 
   try {
     // Use require for node-fetch if still needed, otherwise assume native fetch
-    const fetch = (...args: any[]) => import('node-fetch').then(({ default: fetch }) => fetch(...args)); // Dynamic import for node-fetch in CJS if native fetch isn't assumed/working
 
     const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',

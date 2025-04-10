@@ -43,11 +43,26 @@ module.exports = async (request: any, response: any) => { // Use any for request
     return response.status(500).json({ error: 'AI configuration error (Missing Keys).' });
   }
 
+  // --- Create prompts based on planet type ---
+  const planetNameLower = planet.toLowerCase();
+  let habitablePromptPrefix = "";
+
+  if (["mercury", "venus", "mars"].includes(planetNameLower)) { // Add mercury and venus to extreme condition planets
+      // For extreme condition planets
+      habitablePromptPrefix = `Imagine that in a protected environment or special evolutionary conditions on ${planet}, life has evolved to survive the extreme conditions. `;
+  } else if (["jupiter", "saturn"].includes(planetNameLower)) {
+      // For gas giants
+      habitablePromptPrefix = `Imagine that in the upper atmosphere of ${planet}, life has evolved to survive the gaseous environment. `;
+  } else if (["uranus", "neptune"].includes(planetNameLower)) {
+      // For ice giants
+      habitablePromptPrefix = `Imagine that in the outer atmospheric layers of ${planet}, in regions with more moderate temperatures and pressures, unique life has evolved. `;
+  }
+
   // --- 1. Call OpenAI for Species Descriptions ---
   console.log(`Serverless: Requesting species descriptions for ${planet} from OpenAI...`);
   let speciesList: SpeciesInfo[] = [];
   try {
-    const openAIPrompt = `Based on general scientific understanding of the planet ${planet} (e.g., conditions like ${planet === 'Mars' ? 'thin atmosphere, cold, radiation, potential subsurface water' : planet === 'Jupiter' ? 'gas giant, immense gravity, radiation belts, storms' : planet === 'Sun' ? 'extreme heat, plasma, radiation (make it sci-fi!)' : 'its known conditions'}), invent exactly three distinct hypothetical species that *might* evolve there:
+    const openAIPrompt = `${habitablePromptPrefix}Invent exactly three distinct hypothetical species that *might* evolve there:
     1. One plausible micro-organism.
     2. One plausible animal-like creature (non-sentient).
     3. One plausible sentient humanoid-like species.

@@ -1,3 +1,17 @@
+// api/getNasaImages.ts (or .cts)
+
+// Use 'any' for request/response types to avoid Vercel deployment issues
+// const { VercelRequest, VercelResponse } = require('@vercel/node'); // Keep commented/removed
+
+const { VercelRequest, VercelResponse } = require('@vercel/node'); // Use require for CJS
+
+// Keep dotenv workaround for local dev
+const dotenv = require('dotenv');
+const path = require('path');
+const envPath = path.resolve(process.cwd(), '.env.local');
+dotenv.config({ path: envPath });
+
+
 // --- Helper function for shuffling ---
 function shuffleArray(array: any[]) {
   for (let i = array.length - 1; i > 0; i--) {
@@ -8,18 +22,15 @@ function shuffleArray(array: any[]) {
 }
 // --- ---
 
-interface NasaImageItem {
-  url: string;
-  title: string;
-}
+interface NasaImageItem { url: string; title: string; }
 
-module.exports = async (request: any, response: any) => { // Using any due to previous issues
+module.exports = async (request: any, response: any) => {
   const { planet } = request.query;
   const apiKey = process.env.NASA_API_KEY;
 
   console.log(`NASA Images Fn: Checking NASA_API_KEY: ${apiKey ? 'Found' : 'Not Found!'}`);
 
-  if (!planet || typeof planet !== 'string') {
+  if (!planet || typeof planet === 'undefined' || typeof planet !== 'string') {
     return response.status(400).json({ error: 'Planet query parameter is required.' });
   }
   if (!apiKey) {
@@ -27,57 +38,82 @@ module.exports = async (request: any, response: any) => { // Using any due to pr
     return response.status(500).json({ error: 'NASA API key configuration error.' });
   }
 
+  // Construct search URL (searching title for relevance)
   const searchParams = new URLSearchParams({
-    title: `${planet} surface`, // Keep specific title search
-    media_type: 'image',
+      title: `${planet}`, // Keep search simpler? Or add keywords back? Let's start simple.
+      // q: `${planet} planet surface`, // Alternative search
+      media_type: 'image',
+      // Add api_key if needed for this endpoint, check NASA docs
+      // api_key: apiKey
   });
+  // Vercel automatically limits results, but we fetch default (usually 100) and filter/shuffle
   const NASA_SEARCH_URL = `https://images-api.nasa.gov/search?${searchParams.toString()}`;
-  const MAX_IMAGES_TO_FETCH = 30; // Fetch more initially
-  const MAX_IMAGES_TO_RETURN = 5; // How many to show
 
-  console.log(`Serverless: Searching NASA Images for title "${planet} surface"`);
+
+  console.log(`Serverless: Searching NASA Images for title "${planet}"`);
 
   try {
-    const nasaResponse = await fetch(NASA_SEARCH_URL);
+    const nasaResponse = await fetch(NASA_SEARCH_URL /*, { headers: ... if key needed here}*/);
 
     if (!nasaResponse.ok) {
-      const errorBody = await nasaResponse.text();
+      const errorBody = await nasaResponse.text().catch(()=>'{}'); // Get text if not json
       console.error(`Serverless: NASA Image API Error for ${planet}: ${nasaResponse.status}`, errorBody);
       return response.status(nasaResponse.status).json({ error: `Failed to fetch images from NASA for ${planet}` });
     }
 
     const data = await nasaResponse.json();
-    let items = data?.collection?.items;
+    const items = data?.collection?.items;
 
-    if (!items || items.length === 0) {
+    if (!items || !Array.isArray(items) || items.length === 0) {
       console.log(`Serverless: No NASA image results found for ${planet}.`);
       return response.status(404).json({ error: `No NASA images found for ${planet}` });
     }
+    console.log(`Serverless: Found ${items.length} initial NASA items for ${planet}. Filtering...`);
+
+    // --- Filter Results ---
+    const positiveKeywords = ['surface', 'planet', 'landscape', 'orbiter', 'rover', 'color photo', 'mosaic', 'crater', 'atmosphere', 'clouds', 'rings', 'hst', 'hubble', 'jwst', 'webb', planet.toLowerCase()];
+    const negativeKeywords = ['illustration', 'artist', 'concept', 'impression', 'diagram', 'chart', 'model', 'event', 'group photo', 'training', 'logo', 'insignia', 'poster', 'earth observation', 'launch', 'conference', 'astronaut suit', 'sample return'];
+
+    let filteredItems = items.filter((item: any) => {
+        const title = item?.data?.[0]?.title?.toLowerCase() || '';
+        const desc = item?.data?.[0]?.description?.toLowerCase() || '';
+        const text = title + ' ' + desc;
+
+        // Basic checks first
+        if (!item?.links?.[0]?.href || !title) return false; // Must have image url and title
+        if (!item.links[0].href.match(/\.(jpg|jpeg|png)$/i)) return false; // Ensure it links to an image file
+
+        const hasPositive = positiveKeywords.some(kw => text.includes(kw));
+        const hasNegative = negativeKeywords.some(kw => text.includes(kw));
+
+        return hasPositive && !hasNegative; // Keep if positive keyword found AND no negative keywords found
+    });
+    console.log(`Serverless: Found ${filteredItems.length} relevant items after filtering.`);
+    // --- End Filter ---
+
+    if (filteredItems.length === 0) {
+       console.log(`Serverless: No relevant NASA images found for ${planet} after filtering.`);
+       return response.status(404).json({ error: `No relevant NASA images found for ${planet}` });
+    }
 
     // --- Shuffle and Select ---
-    console.log(`Serverless: Found ${items.length} total NASA items for ${planet}. Shuffling and selecting ${MAX_IMAGES_TO_RETURN}.`);
-    items = shuffleArray(items); // Shuffle the full list
+    const MAX_IMAGES_TO_RETURN = 5;
+    filteredItems = shuffleArray(filteredItems); // Shuffle the relevant ones
     // --- ---
 
-    // Extract data from the top N items of the *shuffled* list
-    const images: NasaImageItem[] = items
-      .slice(0, MAX_IMAGES_TO_FETCH) // Take a larger slice first
-      .map((item: any) => {
-        const imageUrl = item?.links?.[0]?.href;
-        const title = item?.data?.[0]?.title;
-        if (imageUrl && title) {
-          return { url: imageUrl, title: title };
-        }
-        return null; // Exclude item if data is missing
-      })
-      .filter((image: NasaImageItem | null): image is NasaImageItem => image !== null)
-      .slice(0, MAX_IMAGES_TO_RETURN); // Then take the final number needed
+    // Extract data from the top N items
+    const images: NasaImageItem[] = filteredItems
+      .slice(0, MAX_IMAGES_TO_RETURN) // Take the final number needed
+      .map((item: any) => ({
+          url: item.links[0].href,
+          title: item.data[0].title
+       }));
 
     console.log(`Serverless: Returning ${images.length} NASA images for ${planet}.`);
-    response.status(200).json({ images });
+    response.status(200).json({ images }); // Return the array of relevant images
 
   } catch (error: any) {
-    console.error(`Serverless: Error fetching NASA images for ${planet}:`, error);
-    response.status(500).json({ error: `Internal Server Error fetching NASA images: ${error.message}` });
+    console.error(`Serverless: Error processing NASA images for ${planet}:`, error);
+    response.status(500).json({ error: `Internal Server Error processing NASA images: ${error.message}` });
   }
 };

@@ -35,15 +35,24 @@ module.exports = async (request: any, response: any) => { // Use any for request
   // Default negative prompt (useful conceptually, but NOT sent to this specific model)
   // const negative_prompt = "text, labels, watermarks, ui elements, people, humans, astronauts, spacecraft, blurry, low quality, drawing, illustration, sketch, schematic, diagram";
 
-  if (["mercury", "venus", "earth", "mars"].includes(planetNameLower)) {
+  if (["mercury", "venus", "earth", "mars"].includes(planetNameLower)) { // Updated to include mercury and venus
       // Rocky Planets                                                          
-      prompt = `A highly detailed, photo-realistic landscape view from the surface of the planet ${planet}. Based on scientific data (${planet === 'Mars' ? 'reddish rocks and soil, thin hazy atmosphere' : 'varied rocky terrain'}). Daytime, conditions appropriate for the planet. Vast perspective, wide angle view.`;
+      prompt = `A highly detailed, photo-realistic landscape view from the surface of the planet ${planet}. Based on scientific data (${
+        planet === 'Mars' ? 'reddish rocks and soil, thin hazy atmosphere' : 
+        planet === 'Venus' ? 'scorching hot surface with thick yellowish clouds, intense atmospheric pressure' :
+        planet === 'Mercury' ? 'cratered surface similar to the Moon, extreme temperature variations, no atmosphere' :
+        'varied rocky terrain'
+      }). Daytime, conditions appropriate for the planet. Vast perspective, wide angle view.`;
   } else if (["jupiter", "saturn"].includes(planetNameLower)) {
       // Gas Giants
       prompt = `A highly detailed, photo-realistic view looking down at the turbulent, swirling cloud tops and atmospheric bands of the gas giant planet ${planet}, as seen from high orbit. Dramatic lighting, deep space background. ${planetNameLower === 'saturn' ? 'Prominent, detailed planetary rings clearly visible.' : ''}`;
   } else if (["uranus", "neptune"].includes(planetNameLower)) {
       // Ice Giants
-      prompt = `A highly detailed, photo-realistic view looking down at the hazy, atmospheric cloud tops (${planetNameLower === 'uranus' ? 'pale cyan' : 'deep blue'}) of the ice giant planet ${planet}, as seen from high orbit. Dim lighting from the distant Sun, deep space background.`;
+      prompt = `A highly detailed, photo-realistic visualization of what it might look like inside the atmosphere of ${planet}. 
+      Base the visualization on scientific data (hazy, atmospheric cloud tops ${
+          planet === 'Uranus' ? 'with cyan/teal tones' : 'with deep blue tones'
+      }, swirling gas formations, intense storms, and extreme conditions). 
+      Wide angle view showing the unique environment of an ice giant.`;
   } else if (planetNameLower === 'sun') {
       // The Sun - User's Sci-Fi Prompt
        prompt = `Standing on the surface of the sun, a surreal and impossible scene unfolds — molten solar flares erupt around me like dancing infernos, the sky above is an intense swirl of glowing plasma and golden storm clouds. The ground is a sea of churning lava, blinding light reflects off every wave. I wear a futuristic heat-proof exosuit glowing with blue energy, surrounded by pillars of fire and magnetic storms. Everything pulses with raw, cosmic energy. (Cinematic wide-angle view, extreme lighting contrast, hyperreal detail, science fiction atmosphere, lens flares and volumetric light)`;

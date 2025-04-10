@@ -19,9 +19,18 @@ export function Model(props: React.ComponentProps<'group'>) {
     // Path looks correct, added 'as unknown' for safety based on previous fixes
     const { nodes, materials } = useGLTF('/models/saturn.glb') as unknown as GLTFResult;
     return (
-        <group dispose={null}>
+        <group {...props} dispose={null}>
             <mesh name="Cube" castShadow receiveShadow geometry={nodes.Cube.geometry} material={materials['Material.001']} />
-            <mesh name="Circle" castShadow receiveShadow geometry={nodes.Circle.geometry} material={materials['Material.002']} />
+            <mesh
+                name="Circle" // Assuming this is the rings
+                castShadow receiveShadow // Rings probably shouldn't cast shadows? Remove if needed
+                geometry={nodes.Circle.geometry}
+                material={materials['Material.002']}
+                // --- Add these overrides ---
+                material-transparent={true}
+                material-opacity={0.8} // Adjust opacity 0.0 (invisible) to 1.0 (opaque)
+                // --- ---
+            />
         </group>
     );
 }
