@@ -1,0 +1,36 @@
+{
+  // Inherit general settings from the root tsconfig
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    // --- Override module settings specifically for API routes ---
+    "module": "CommonJS",
+    "moduleResolution": "Node",
+    // Tell TS these are CJS modules - might help resolve require issues
+    // "moduleDetection": "legacy", // Try adding if needed later
+    // --- ---
+
+    // Ensure output directory is set (Vercel might override, but good practice)
+    "outDir": "../.vercel/output/functions/_lib", // Standard internal lib path
+    "rootDir": "./", // Root of these specific sources is the api dir
+
+    // Ensure these are suitable for Node runtime
+    "target": "ES2020", // Or higher Node version target
+    "lib": ["ES2020"], // No DOM needed
+
+    // Keep these for compatibility/safety
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+
+    // We NEED to emit JS for Vercel runtime, so override noEmit from base
+    "noEmit": false,
+    // Let Vercel handle isolated modules detection for API routes
+    "isolatedModules": false,
+
+    // Keep strictness if possible, relax if it causes too many issues here
+    "strict": true
+  },
+  // Compile only the TS files within this api directory
+  "include": ["**/*.ts"], // Use .ts since user confirmed that's the extension
+  "exclude": ["node_modules"]
+}
