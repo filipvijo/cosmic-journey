@@ -2,9 +2,6 @@
 // Using 'any' for req/res types due to previous deployment issues
 // const { VercelRequest, VercelResponse } = require('@vercel/node');
 
-// Use dynamic import or require for node-fetch if needed, or assume native fetch
-const fetch = (...args: any[]) => import('node-fetch').then(({default: fetch}) => fetch(...args));
-
 // Keep dotenv workaround for local dev
 const dotenv = require('dotenv');
 const path = require('path');

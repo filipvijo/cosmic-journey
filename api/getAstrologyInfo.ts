@@ -2,11 +2,6 @@
 // const { VercelRequest, VercelResponse } = require('@vercel/node'); // Keep commented/removed
 
 // --- Keep dotenv workaround for local dev ---
-const dotenv = require('dotenv');
-const path = require('path');
-const envPath = path.resolve(process.cwd(), '.env.local');
-dotenv.config({ path: envPath });
-// --- ---
 
 // OpenAI response type (optional but helpful)
 interface OpenAIChatChoice {

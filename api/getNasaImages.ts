@@ -5,13 +5,6 @@
 
 const { VercelRequest, VercelResponse } = require('@vercel/node'); // Use require for CJS
 
-// Keep dotenv workaround for local dev
-const dotenv = require('dotenv');
-const path = require('path');
-const envPath = path.resolve(process.cwd(), '.env.local');
-dotenv.config({ path: envPath });
-
-
 // --- Helper function for shuffling ---
 function shuffleArray(array: any[]) {
   for (let i = array.length - 1; i > 0; i--) {

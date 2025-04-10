@@ -1,9 +1,3 @@
-import dotenv from 'dotenv';
-import path from 'path'; // Make sure path is imported too
-
-const envPath = path.resolve(process.cwd(), '.env.local');
-dotenv.config({ path: envPath });
-
 const { VercelRequest, VercelResponse } = require('@vercel/node');
 const { fal } = require('@fal-ai/client'); // Uncommented and using require
 
