@@ -38,9 +38,8 @@ Cosmic Journey bridges science and imagination. It’s designed to **educate, in
 ---
 
 ## ✨ Created By
-
-**Filip Vijo**  
-[GitHub](https://github.com/filipvijo) | [Upwork](https://www.upwork.com/freelancers/~filipvijo)  
+Filip 
+[GitHub](https://github.com/filipvijo) |
 Web Developer • AI Integrator • Creative Technologist
 
 ---
