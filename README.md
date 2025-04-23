@@ -1,54 +1,54 @@
-# React + TypeScript + Vite
+# 🌌 Cosmic Journey
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**Cosmic Journey** is an interactive, AI-enhanced web app that transforms astronomy into an immersive, cosmic adventure. Users can explore planets, zoom into celestial bodies, and uncover real-time data, videos, and imaginative AI-generated species from across the solar system.
 
-Currently, two official plugins are available:
+🔗 Live Demo: [cosmic-journey-enhanced.vercel.app](https://cosmic-journey-enhanced.vercel.app)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## Expanding the ESLint configuration
+## 🚀 Features
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- 🌍 Interactive 3D Solar System navigation
+- 🪐 Clickable planets with zoom-in transitions
+- 📡 Real-time planetary data (NASA API)
+- 🧠 AI-generated planetary descriptions, visuals & species (OpenAI + fal.ai)
+- 📺 Curated educational video content (YouTube API)
+- 🔮 Optional astrological insights per planet
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+---
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 🛠 Tech Stack
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+- **Frontend:** React, Vite, TailwindCSS
+- **3D Graphics:** `three.js`, glTF (.glb) models
+- **APIs:** OpenAI, NASA, fal.ai, YouTube API
+- **Deployment:** Vercel
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
+---
+
+## 🎯 Vision
+
+Cosmic Journey bridges science and imagination. It’s designed to **educate, inspire, and entertain** by blending real data with AI storytelling — creating a digital experience that feels like a guided tour of the galaxy.
+
+---
+
+![cosmic-journey](https://github.com/user-attachments/assets/6c4d2b69-52ba-40cb-a770-6921870afbe8)
+
+
+---
+
+## ✨ Created By
+
+**Filip Vijo**  
+[GitHub](https://github.com/filipvijo) | [Upwork](https://www.upwork.com/freelancers/~filipvijo)  
+Web Developer • AI Integrator • Creative Technologist
+
+---
+
+## 🛰 Future Features
+
+- 👩‍🚀 User-led cosmic missions
+- 🎮 Gamified exploration with achievements
+- 🌌 AR mode (via mobile/webcam)
+- 📖 Save your journey and discoveries
+
